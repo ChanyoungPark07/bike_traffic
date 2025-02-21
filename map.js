@@ -101,7 +101,8 @@ map.on('load', () => {
                     };
                 });
 
-                radiusScale.domain([0, d3.max(filteredStations, d => d.totalTraffic)]);
+                radiusScale.range(timeFilter === -1 ? [0, 25] : [3, 20])
+                    .domain([0, d3.max(filteredStations, d => d.totalTraffic)]);
 
                 const circles = svg.selectAll('circle')
                     .data(filteredStations);
@@ -118,8 +119,13 @@ map.on('load', () => {
                     .attr('opacity', 0.6)
                     .style("--departure-ratio", d => {
                         if (d.totalTraffic === 0) return 0;
-                        return stationFlow(d.departures / d.totalTraffic);
-                    });
+                        return stationFlow(d.departures / d.totalTraffic)
+                    })
+                    .each(function(d) {
+                        d3.select(this)
+                          .append('title')
+                          .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
+                      });
 
                 function updatePositions() {
                     svg.selectAll('circle')
