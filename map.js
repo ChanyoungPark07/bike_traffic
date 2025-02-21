@@ -53,6 +53,10 @@ map.on('load', () => {
             }
 
             function filterByMinute(tripsByMinute, minute) {
+                if (minute === -1) {
+                    return tripsByMinute.flat();
+                }
+
                 let minMinute = (minute - 60 + 1440) % 1440;
                 let maxMinute = (minute + 60) % 1440;
               
@@ -101,8 +105,8 @@ map.on('load', () => {
                     };
                 });
 
-                radiusScale.range(timeFilter === -1 ? [0, 25] : [3, 20])
-                    .domain([0, d3.max(filteredStations, d => d.totalTraffic)]);
+                radiusScale.range(timeFilter === -1 ? [2, 10] : [2, 20])
+                    .domain([0, 2000]);
 
                 const circles = svg.selectAll('circle')
                     .data(filteredStations);
@@ -122,6 +126,9 @@ map.on('load', () => {
                         return stationFlow(d.departures / d.totalTraffic)
                     })
                     .each(function(d) {
+                        d3.select(this)
+                          .select('title')
+                          .remove();
                         d3.select(this)
                           .append('title')
                           .text(`${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`);
